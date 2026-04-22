@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A6C8702A-F0BD-4F43-B10D-A7D31A757F89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDataViewer.Core", "src\GameDataViewer.Core\GameDataViewer.Core.csproj", "{11DC32E3-8769-481C-82FB-404DB01276DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDataViewer.Infrastructure", "src\GameDataViewer.Infrastructure\GameDataViewer.Infrastructure.csproj", "{E3037019-E7BD-4960-89EB-D960B553DD72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDataViewer.App", "src\GameDataViewer.App\GameDataViewer.App.csproj", "{D8878113-BB66-4F27-A9F8-DDAF1B205D6F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{80FA1E2E-CFF5-4CF9-83A6-E01D3FED1128}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDataViewer.Tests", "tests\GameDataViewer.Tests\GameDataViewer.Tests.csproj", "{C6006B0E-AFDA-48B9-873B-C9B4A595783A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDataViewer.UITests", "tests\GameDataViewer.UITests\GameDataViewer.UITests.csproj", "{493E376A-D19F-4AFB-B658-60C8D42FEE84}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{11DC32E3-8769-481C-82FB-404DB01276DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DC32E3-8769-481C-82FB-404DB01276DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11DC32E3-8769-481C-82FB-404DB01276DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11DC32E3-8769-481C-82FB-404DB01276DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3037019-E7BD-4960-89EB-D960B553DD72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3037019-E7BD-4960-89EB-D960B553DD72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3037019-E7BD-4960-89EB-D960B553DD72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3037019-E7BD-4960-89EB-D960B553DD72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8878113-BB66-4F27-A9F8-DDAF1B205D6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8878113-BB66-4F27-A9F8-DDAF1B205D6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8878113-BB66-4F27-A9F8-DDAF1B205D6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8878113-BB66-4F27-A9F8-DDAF1B205D6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6006B0E-AFDA-48B9-873B-C9B4A595783A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6006B0E-AFDA-48B9-873B-C9B4A595783A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6006B0E-AFDA-48B9-873B-C9B4A595783A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6006B0E-AFDA-48B9-873B-C9B4A595783A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{493E376A-D19F-4AFB-B658-60C8D42FEE84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{493E376A-D19F-4AFB-B658-60C8D42FEE84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{493E376A-D19F-4AFB-B658-60C8D42FEE84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{493E376A-D19F-4AFB-B658-60C8D42FEE84}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{11DC32E3-8769-481C-82FB-404DB01276DE} = {A6C8702A-F0BD-4F43-B10D-A7D31A757F89}
+		{E3037019-E7BD-4960-89EB-D960B553DD72} = {A6C8702A-F0BD-4F43-B10D-A7D31A757F89}
+		{D8878113-BB66-4F27-A9F8-DDAF1B205D6F} = {A6C8702A-F0BD-4F43-B10D-A7D31A757F89}
+		{C6006B0E-AFDA-48B9-873B-C9B4A595783A} = {80FA1E2E-CFF5-4CF9-83A6-E01D3FED1128}
+		{493E376A-D19F-4AFB-B658-60C8D42FEE84} = {80FA1E2E-CFF5-4CF9-83A6-E01D3FED1128}
+	EndGlobalSection
+EndGlobal

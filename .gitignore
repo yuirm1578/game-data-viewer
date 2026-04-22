@@ -1,0 +1,113 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+
+# Visual Studio user-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio build-related files
+*.rsuser
+*.suo
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Rider
+.idea/
+.idea_modules/
+*.sln.iml
+*.iml
+
+# Build Folders
+publish/
+PublishProfiles/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/packages/
+*.nuget.props
+*.nuget.targets
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+
+# User-specific files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.dll
+*.exe
+*.so
+*.dylib
+*.o
+*.a
+*.lib
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# IDE-specific
+.idea/
+.vs/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# OS-specific
+.DS_Store
+desktop.ini
+Thumbs.db
+ehthumbs.db
+
+# Dependencies lock files (optional, uncomment if you want to track lock files)
+# packages-lock.json
+# yarn.lock
+
+# Local environment variables
+.env
+.env.local
+
+# Coverage reports
+coverage/
+*.coverage
+OpenCover/
+
+# Profiling data
+*.diagsession
+*.psess

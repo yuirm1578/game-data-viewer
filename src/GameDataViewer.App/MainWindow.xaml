@@ -1,0 +1,495 @@
+﻿<mah:MetroWindow
+    x:Class="GameDataViewer.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:vm="clr-namespace:GameDataViewer.App.ViewModels"
+    xmlns:views="clr-namespace:GameDataViewer.App.Views"
+    mc:Ignorable="d"
+    Title="{Binding WindowTitle}"
+    Height="800" Width="1280"
+    WindowStartupLocation="CenterScreen"
+    WindowState="Maximized"
+    WindowTransitionsEnabled="False"
+    GlowBrush="{DynamicResource MahApps.Brushes.Accent}">
+
+    <mah:MetroWindow.Resources>
+        <Style x:Key="FilterComboStyle" TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox}">
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+        <Style x:Key="FilterTextStyle" TargetType="TextBox" BasedOn="{StaticResource MahApps.Styles.TextBox}">
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="MinWidth" Value="180"/>
+        </Style>
+
+        <!-- DataGrid 행 하이라이트 (등급별) -->
+        <Style x:Key="GradeRowStyle" TargetType="DataGridRow"
+               BasedOn="{StaticResource {x:Type DataGridRow}}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Grade}" Value="전설">
+                    <Setter Property="Background" Value="#18FF9800"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Grade}" Value="영웅">
+                    <Setter Property="Background" Value="#182196F3"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Grade}" Value="고급">
+                    <Setter Property="Background" Value="#184CAF50"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Grade}" Value="유물">
+                    <Setter Property="Background" Value="#189C27B0"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 스킬 궁극기 행 하이라이트 -->
+        <Style x:Key="SkillRowStyle" TargetType="DataGridRow"
+               BasedOn="{StaticResource {x:Type DataGridRow}}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsUltimate}" Value="True">
+                    <Setter Property="Background" Value="#18FF9800"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </mah:MetroWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 탭 헤더: TabControl 외부 독립 ListBox — WPF 창 활성화와 무관하게 항상 렌더링 -->
+        <Border Grid.Row="0" Background="#252526" BorderBrush="#3F9BF5" BorderThickness="0,0,0,1" MinHeight="46">
+            <ListBox SelectedIndex="{Binding SelectedTabIndex}"
+                     Style="{x:Null}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     MinHeight="44"
+                     Margin="8,0,0,0"
+                     VirtualizingPanel.IsVirtualizing="False">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="IsTabStop" Value="False"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="Bd"
+                                            Background="#2D2D30"
+                                            BorderBrush="Transparent"
+                                            BorderThickness="0,3,0,0"
+                                            Padding="20,10">
+                                        <TextBlock x:Name="Hdr"
+                                                   Text="{TemplateBinding Content}"
+                                                   Foreground="#C8C8C8"
+                                                   FontSize="13"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Bd"  Property="Background"  Value="#1E1E1E"/>
+                                            <Setter TargetName="Bd"  Property="BorderBrush" Value="#3F9BF5"/>
+                                            <Setter TargetName="Hdr" Property="Foreground"  Value="White"/>
+                                            <Setter TargetName="Hdr" Property="FontWeight"  Value="SemiBold"/>
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsSelected"  Value="False"/>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter TargetName="Bd"  Property="Background" Value="#3C3C42"/>
+                                            <Setter TargetName="Hdr" Property="Foreground" Value="#DDDDDD"/>
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBoxItem>⚔ 아이템</ListBoxItem>
+                <ListBoxItem>✨ 스킬</ListBoxItem>
+                <ListBoxItem>👾 몬스터</ListBoxItem>
+                <ListBoxItem>📊 통계</ListBoxItem>
+                <ListBoxItem>⚙ 설정</ListBoxItem>
+            </ListBox>
+        </Border>
+
+        <!-- 탭 콘텐츠 (헤더 없는 순수 콘텐츠 영역) -->
+        <TabControl Grid.Row="1"
+                    SelectedIndex="{Binding SelectedTabIndex}"
+                    Style="{x:Null}">
+
+            <!-- 콘텐츠 영역만 렌더링 (헤더는 외부 ListBox가 담당) -->
+            <TabControl.Template>
+                <ControlTemplate TargetType="TabControl">
+                    <Border Background="#1E1E1E">
+                        <Grid>
+                            <!-- 숨겨진 TabPanel: ItemsHost 를 설정하여 UIA 자동화 트리에 TabItem 내부가 노출되도록 함 -->
+                            <TabPanel IsItemsHost="True" Visibility="Collapsed"/>
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              ContentSource="SelectedContent"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </TabControl.Template>
+
+
+
+            <!-- ============= 아이템 탭 ============= -->
+            <TabItem Header="⚔ 아이템" DataContext="{Binding Items}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 필터 바 -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8,6">
+                        <TextBox Style="{StaticResource FilterTextStyle}"
+                                 mah:TextBoxHelper.Watermark="이름 검색..."
+                                 mah:TextBoxHelper.ClearTextButton="True"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="아이템 이름 검색"/>
+                        <Button Content="검색" Margin="4,0"
+                                Command="{Binding SearchCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
+                                AutomationProperties.Name="아이템 검색"/>
+                        <ComboBox Style="{StaticResource FilterComboStyle}"
+                                  mah:TextBoxHelper.Watermark="등급"
+                                  ItemsSource="{Binding Grades}"
+                                  SelectedItem="{Binding SelectedGrade}"
+                                  AutomationProperties.Name="등급 필터"/>
+                        <ComboBox Style="{StaticResource FilterComboStyle}"
+                                  mah:TextBoxHelper.Watermark="카테고리"
+                                  ItemsSource="{Binding Categories}"
+                                  SelectedItem="{Binding SelectedCategory}"
+                                  AutomationProperties.Name="카테고리 필터"/>
+                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="6,0"/>
+                        <Button Content="CSV ↓" Margin="2,0"
+                                Command="{Binding ExportCsvCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}"
+                                ToolTip="현재 필터 조건으로 CSV 내보내기"/>
+                        <Button Content="XLS ↓" Margin="2,0"
+                                Command="{Binding ExportExcelCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}"
+                                ToolTip="현재 필터 조건으로 Excel 내보내기"/>
+                        <TextBlock VerticalAlignment="Center" Margin="12,0,0,0"
+                                   Text="{Binding StatusMessage}"
+                                   Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                    </StackPanel>
+
+                    <!-- 데이터 그리드 + 상세 뷰 -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 빈 결과 안내 -->
+                        <Border Grid.Column="0" Panel.ZIndex="1"
+                                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                                Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="🔍" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="검색 결과가 없습니다." FontSize="14"
+                                           Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <DataGrid x:Name="ItemDataGrid"
+                                  Grid.Column="0"
+                                  ItemsSource="{Binding Items}"
+                                  SelectedItem="{Binding SelectedItem}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserSortColumns="True"
+                                  GridLinesVisibility="Horizontal"
+                                  Sorting="ItemDataGrid_Sorting"
+                                  RowStyle="{StaticResource GradeRowStyle}"
+                                  Style="{StaticResource MahApps.Styles.DataGrid}"
+                                  AutomationProperties.Name="아이템 목록">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID"      Binding="{Binding Id}"            Width="55"/>
+                                <DataGridTextColumn Header="이름"    Binding="{Binding Name}"          Width="*"/>
+                                <DataGridTextColumn Header="등급"    Binding="{Binding Grade}"         Width="70"/>
+                                <DataGridTextColumn Header="분류"    Binding="{Binding Category}"      Width="80"/>
+                                <DataGridTextColumn Header="공격력"  Binding="{Binding AttackPower}"   Width="65"/>
+                                <DataGridTextColumn Header="방어력"  Binding="{Binding DefensePower}"  Width="65"/>
+                                <DataGridTextColumn Header="마력"    Binding="{Binding MagicPower}"    Width="65"/>
+                                <DataGridTextColumn Header="필요LV"  Binding="{Binding RequiredLevel}" Width="65"/>
+                                <DataGridCheckBoxColumn Header="교환" Binding="{Binding IsTradable}"   Width="50"/>
+                                <DataGridTextColumn Header="가격"    Binding="{Binding Price, StringFormat={}{0:#,0}}" Width="90"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+
+                        <views:ItemDetailView Grid.Column="2"
+                                              DataContext="{Binding SelectedItem}"/>
+
+                        <!-- 로딩 오버레이 -->
+                        <views:BusyOverlay Grid.ColumnSpan="3" Panel.ZIndex="10"
+                                           Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+                    </Grid>
+
+                    <!-- 페이징 -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="4">
+                        <Button Content="◀ 이전" Command="{Binding PrevPageCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}" Margin="4,0"/>
+                        <TextBlock VerticalAlignment="Center" Margin="8,0"
+                                   Text="{Binding CurrentPage, StringFormat='페이지 {0}'}"/>
+                        <TextBlock VerticalAlignment="Center" Margin="0,0,8,0"
+                                   Text="{Binding TotalPages, StringFormat='/ {0}'}"/>
+                        <Button Content="다음 ▶" Command="{Binding NextPageCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}" Margin="4,0"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ============= 스킬 탭 ============= -->
+            <TabItem Header="✨ 스킬" DataContext="{Binding Skills}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8,6">
+                        <TextBox Style="{StaticResource FilterTextStyle}"
+                                 mah:TextBoxHelper.Watermark="스킬 이름 검색..."
+                                 mah:TextBoxHelper.ClearTextButton="True"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="스킬 이름 검색"/>
+                        <Button Content="검색" Margin="4,0"
+                                Command="{Binding SearchCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
+                                AutomationProperties.Name="스킬 검색"/>
+                        <ComboBox Style="{StaticResource FilterComboStyle}"
+                                  mah:TextBoxHelper.Watermark="직업"
+                                  ItemsSource="{Binding Classes}"
+                                  SelectedItem="{Binding SelectedClass}"
+                                  AutomationProperties.Name="직업 필터"/>
+                        <ComboBox Style="{StaticResource FilterComboStyle}"
+                                  mah:TextBoxHelper.Watermark="스킬유형"
+                                  ItemsSource="{Binding Types}"
+                                  SelectedItem="{Binding SelectedType}"
+                                  AutomationProperties.Name="스킬 유형 필터"/>
+                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="6,0"/>
+                        <Button Content="CSV ↓" Margin="2,0"
+                                Command="{Binding ExportCsvCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}"
+                                ToolTip="현재 필터 조건으로 CSV 내보내기"/>
+                        <Button Content="XLS ↓" Margin="2,0"
+                                Command="{Binding ExportExcelCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}"
+                                ToolTip="현재 필터 조건으로 Excel 내보내기"/>
+                        <TextBlock VerticalAlignment="Center" Margin="12,0,0,0"
+                                   Text="{Binding StatusMessage}"
+                                   Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 빈 결과 안내 -->
+                        <Border Grid.Column="0" Panel.ZIndex="1"
+                                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                                Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="🔍" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="검색 결과가 없습니다." FontSize="14"
+                                           Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <DataGrid x:Name="SkillDataGrid"
+                                  Grid.Column="0"
+                                  ItemsSource="{Binding Skills}"
+                                  SelectedItem="{Binding SelectedSkill}"
+                                  AutoGenerateColumns="False" IsReadOnly="True"
+                                  Sorting="SkillDataGrid_Sorting"
+                                  RowStyle="{StaticResource SkillRowStyle}"
+                                  Style="{StaticResource MahApps.Styles.DataGrid}"
+                                  AutomationProperties.Name="스킬 목록">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID"      Binding="{Binding Id}"              Width="55"/>
+                                <DataGridTextColumn Header="이름"    Binding="{Binding Name}"            Width="*"/>
+                                <DataGridTextColumn Header="직업"    Binding="{Binding Class}"           Width="80"/>
+                                <DataGridTextColumn Header="유형"    Binding="{Binding Type}"            Width="70"/>
+                                <DataGridTextColumn Header="속성"    Binding="{Binding Element}"         Width="55"/>
+                                <DataGridTextColumn Header="최소데미지" Binding="{Binding MinDamage}"    Width="80"/>
+                                <DataGridTextColumn Header="최대데미지" Binding="{Binding MaxDamage}"    Width="80"/>
+                                <DataGridTextColumn Header="MP소모"  Binding="{Binding MpCost}"          Width="65"/>
+                                <DataGridTextColumn Header="쿨다운"  Binding="{Binding CooldownSeconds, StringFormat={}{0:F1}s}" Width="70"/>
+                                <DataGridCheckBoxColumn Header="궁극기" Binding="{Binding IsUltimate}"   Width="55"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+
+                        <views:SkillDetailView Grid.Column="2"
+                                               DataContext="{Binding SelectedSkill}"/>
+
+                        <!-- 로딩 오버레이 -->
+                        <views:BusyOverlay Grid.ColumnSpan="3" Panel.ZIndex="10"
+                                           Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+                    </Grid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="4">
+                        <Button Content="◀ 이전" Command="{Binding PrevPageCommand}" Style="{StaticResource MahApps.Styles.Button.Square}" Margin="4,0"/>
+                        <TextBlock VerticalAlignment="Center" Margin="8,0"
+                                   Text="{Binding CurrentPage, StringFormat='페이지 {0}'}"/>
+                        <TextBlock VerticalAlignment="Center" Margin="0,0,8,0"
+                                   Text="{Binding TotalPages, StringFormat='/ {0}'}"/>
+                        <Button Content="다음 ▶" Command="{Binding NextPageCommand}" Style="{StaticResource MahApps.Styles.Button.Square}" Margin="4,0"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ============= 몬스터 탭 ============= -->
+            <TabItem Header="👾 몬스터" DataContext="{Binding Monsters}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8,6">
+                        <TextBox Style="{StaticResource FilterTextStyle}"
+                                 mah:TextBoxHelper.Watermark="몬스터 이름 검색..."
+                                 mah:TextBoxHelper.ClearTextButton="True"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="몬스터 이름 검색"/>
+                        <Button Content="검색" Margin="4,0"
+                                Command="{Binding SearchCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
+                                AutomationProperties.Name="몬스터 검색"/>
+                        <ComboBox Style="{StaticResource FilterComboStyle}"
+                                  mah:TextBoxHelper.Watermark="등급"
+                                  ItemsSource="{Binding Grades}"
+                                  SelectedItem="{Binding SelectedGrade}"
+                                  AutomationProperties.Name="몬스터 등급 필터"/>
+                        <ComboBox Style="{StaticResource FilterComboStyle}"
+                                  mah:TextBoxHelper.Watermark="지역"
+                                  ItemsSource="{Binding Locations}"
+                                  SelectedItem="{Binding SelectedLocation}"
+                                  AutomationProperties.Name="지역 필터"/>
+                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="6,0"/>
+                        <Button Content="CSV ↓" Margin="2,0"
+                                Command="{Binding ExportCsvCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}"
+                                ToolTip="현재 필터 조건으로 CSV 내보내기"/>
+                        <Button Content="XLS ↓" Margin="2,0"
+                                Command="{Binding ExportExcelCommand}"
+                                Style="{StaticResource MahApps.Styles.Button.Square}"
+                                ToolTip="현재 필터 조건으로 Excel 내보내기"/>
+                        <TextBlock VerticalAlignment="Center" Margin="12,0,0,0"
+                                   Text="{Binding StatusMessage}"
+                                   Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 빈 결과 안내 -->
+                        <Border Grid.Column="0" Panel.ZIndex="1"
+                                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                                Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="🔍" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="검색 결과가 없습니다." FontSize="14"
+                                           Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <DataGrid x:Name="MonsterDataGrid"
+                                  Grid.Column="0"
+                                  ItemsSource="{Binding Monsters}"
+                                  SelectedItem="{Binding SelectedMonster}"
+                                  AutoGenerateColumns="False" IsReadOnly="True"
+                                  Sorting="MonsterDataGrid_Sorting"
+                                  RowStyle="{StaticResource GradeRowStyle}"
+                                  Style="{StaticResource MahApps.Styles.DataGrid}"
+                                  AutomationProperties.Name="몬스터 목록">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID"      Binding="{Binding Id}"             Width="55"/>
+                                <DataGridTextColumn Header="이름"    Binding="{Binding Name}"           Width="*"/>
+                                <DataGridTextColumn Header="등급"    Binding="{Binding Grade}"          Width="70"/>
+                                <DataGridTextColumn Header="속성"    Binding="{Binding Element}"        Width="55"/>
+                                <DataGridTextColumn Header="지역"    Binding="{Binding Location}"       Width="100"/>
+                                <DataGridTextColumn Header="레벨"    Binding="{Binding Level}"          Width="55"/>
+                                <DataGridTextColumn Header="HP"      Binding="{Binding Hp, StringFormat={}{0:#,0}}"       Width="80"/>
+                                <DataGridTextColumn Header="공격"    Binding="{Binding AttackMax, StringFormat={}{0:#,0}}" Width="70"/>
+                                <DataGridTextColumn Header="경험치"  Binding="{Binding ExpReward, StringFormat={}{0:#,0}}" Width="80"/>
+                                <DataGridCheckBoxColumn Header="보스" Binding="{Binding IsBoss}"        Width="50"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+
+                        <views:MonsterDetailView Grid.Column="2"
+                                                  DataContext="{Binding SelectedMonster}"/>
+
+                        <!-- 로딩 오버레이 -->
+                        <views:BusyOverlay Grid.ColumnSpan="3" Panel.ZIndex="10"
+                                           Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+                    </Grid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="4">
+                        <Button Content="◀ 이전" Command="{Binding PrevPageCommand}" Style="{StaticResource MahApps.Styles.Button.Square}" Margin="4,0"/>
+                        <TextBlock VerticalAlignment="Center" Margin="8,0"
+                                   Text="{Binding CurrentPage, StringFormat='페이지 {0}'}"/>
+                        <TextBlock VerticalAlignment="Center" Margin="0,0,8,0"
+                                   Text="{Binding TotalPages, StringFormat='/ {0}'}"/>
+                        <Button Content="다음 ▶" Command="{Binding NextPageCommand}" Style="{StaticResource MahApps.Styles.Button.Square}" Margin="4,0"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ============= 통계 탭 ============= -->
+            <TabItem Header="📊 통계" DataContext="{Binding Charts}">
+                <views:ChartView/>
+            </TabItem>
+
+            <!-- ============= 설정 탭 ============= -->
+            <TabItem Header="⚙ 설정" DataContext="{Binding Settings}">
+                <views:SettingsView/>
+            </TabItem>
+
+        </TabControl>
+
+        <!-- 상태 바 -->
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusMessage}" Margin="8,0"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <mah:ProgressRing IsActive="{Binding IsBusy}" Width="18" Height="18" Margin="0,0,8,0"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</mah:MetroWindow>

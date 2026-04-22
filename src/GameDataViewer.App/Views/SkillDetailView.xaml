@@ -1,0 +1,100 @@
+<UserControl x:Class="GameDataViewer.App.Views.SkillDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="480" d:DesignWidth="260">
+
+    <UserControl.Resources>
+        <Style x:Key="PropLabel" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Gray3}"/>
+        </Style>
+        <Style x:Key="PropValue" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- 빈 상태 -->
+        <TextBlock x:Name="EmptyHint"
+                   Text="스킬을 선택하세요"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Opacity="0.4" FontSize="13" FontStyle="Italic"/>
+
+        <!-- 상세 패널 -->
+        <ScrollViewer x:Name="DetailPanel" Visibility="Collapsed"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="12,10">
+
+                <!-- 속성 뱃지 + 이름 -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border CornerRadius="3" Padding="6,3" Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            Background="{Binding Element, Converter={StaticResource ElementToColor}}">
+                        <TextBlock Text="{Binding Element}" FontWeight="Bold" FontSize="11" Foreground="White"/>
+                    </Border>
+                    <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- 직업 · 유형 부제목 -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="{Binding Class}" Opacity="0.6" Margin="0,0,6,0"/>
+                    <TextBlock Text="·" Opacity="0.4" Margin="0,0,6,0"/>
+                    <TextBlock Text="{Binding Type}" Opacity="0.6"/>
+                </StackPanel>
+
+                <Separator Margin="0,0,0,8"/>
+
+                <!-- 스탯 Grid -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="76"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="데미지" Style="{StaticResource PropLabel}"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding MinDamage, StringFormat={}{0:#,0}}"/>
+                        <TextBlock Text=" ~ " Opacity="0.45"/>
+                        <TextBlock Text="{Binding MaxDamage, StringFormat={}{0:#,0}}"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="MP 소모" Style="{StaticResource PropLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MpCost}" Style="{StaticResource PropValue}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="쿨다운" Style="{StaticResource PropLabel}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CooldownSeconds, StringFormat={}{0:F1}초}" Style="{StaticResource PropValue}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="사거리" Style="{StaticResource PropLabel}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Range}" Style="{StaticResource PropValue}"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="최대 레벨" Style="{StaticResource PropLabel}"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding MaxLevel}" Style="{StaticResource PropValue}"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="궁극기" Style="{StaticResource PropLabel}"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1"
+                               Text="{Binding IsUltimate, Converter={StaticResource BoolToActive}}"
+                               Style="{StaticResource PropValue}"/>
+                </Grid>
+
+                <Separator Margin="0,8"/>
+                <TextBlock Text="설명" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBlock Text="{Binding Description}" TextWrapping="Wrap"
+                           Opacity="0.75" LineHeight="18"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

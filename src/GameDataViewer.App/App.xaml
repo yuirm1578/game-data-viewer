@@ -1,0 +1,29 @@
+﻿<Application x:Class="GameDataViewer.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:GameDataViewer.App"
+             xmlns:conv="clr-namespace:GameDataViewer.App.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro 다크 테마 -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Dark.Blue.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- ── Value Converters ─────────────────────────────── -->
+            <conv:GradeToColorConverter   x:Key="GradeToColor"/>
+            <conv:ElementToColorConverter x:Key="ElementToColor"/>
+            <!-- 교환가능/교환불가 -->
+            <conv:BoolToYesNoConverter x:Key="BoolToYesNo"  TrueText="교환가능" FalseText="교환불가"/>
+            <!-- 궁극기/일반기 -->
+            <conv:BoolToYesNoConverter x:Key="BoolToActive" TrueText="궁극기"   FalseText="일반기"/>
+            <conv:NullToVisibilityConverter x:Key="NullToVis"/>
+            <conv:NullToVisibilityConverter x:Key="NotNullToVis" Invert="True"/>
+            <!-- bool → Visibility -->
+            <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
+            <conv:BoolToVisibilityConverter x:Key="NotBoolToVis" Invert="True"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
